@@ -1,16 +1,47 @@
 #include "main.h"
 
+#define BTN_PIN LL_GPIO_PIN_0
+#define LED_PIN LL_GPIO_PIN_13
+#define BTN_PORT GPIOA
+#define LED_PORT GPIOC
+
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
+static void GPIO_Init(void);
 
 int main(void)
 {
   SystemClock_Config();
+  GPIO_Init();
 
   while (1)
   {
+	 if (LL_GPIO_IsInputPinSet(BTN_PORT, BTN_PIN))
+		 LL_GPIO_ResetOutputPin(LED_PORT, LED_PIN);
+	 else
+		 LL_GPIO_SetOutputPin(LED_PORT, LED_PIN);
 
   }
+}
+
+static void GPIO_Init(void)
+{
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
+
+	LL_GPIO_InitTypeDef GPIO_InitSturct = {
+			.Pin = BTN_PIN,
+			.Mode = LL_GPIO_MODE_INPUT,
+			.Speed = LL_GPIO_SPEED_FREQ_LOW,
+			.OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+			.Pull = LL_GPIO_PULL_DOWN,
+			.Alternate = LL_GPIO_AF_0
+	};
+	LL_GPIO_Init(BTN_PORT, &GPIO_InitSturct);
+
+	GPIO_InitSturct.Pin = LED_PIN;
+	GPIO_InitSturct.Mode = LL_GPIO_MODE_OUTPUT;
+	GPIO_InitSturct.Pull = LL_GPIO_PULL_NO;
+	LL_GPIO_Init(LED_PORT, &GPIO_InitSturct);
 }
 
 SystemClock_Config(void)
